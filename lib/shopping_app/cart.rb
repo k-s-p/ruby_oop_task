@@ -1,7 +1,9 @@
 require_relative "item_manager"
+require_relative "ownable"
 
 class Cart
   include ItemManager
+  include Ownable
 
   def initialize(owner)
     self.owner = owner
@@ -28,7 +30,14 @@ class Cart
   #   - カートの中身（Cart#items）のすべてのアイテムの購入金額が、カートのオーナーのウォレットからアイテムのオーナーのウォレットに移されること。
   #   - カートの中身（Cart#items）のすべてのアイテムのオーナー権限が、カートのオーナーに移されること。
   #   - カートの中身（Cart#items）が空になること。
-
+    @items.each{|item|
+      item.owner.wallet.deposit(item.price)
+    }
+    self.owner.wallet.withdraw(total_amount)
+    @items.each{|item|
+      item.owner = self.owner
+    }
+    @items = []
   # ## ヒント
   #   - カートのオーナーのウォレット ==> self.owner.wallet
   #   - アイテムのオーナーのウォレット ==> item.owner.wallet
